@@ -1309,6 +1309,10 @@ function tampilDetail(data){
         '</div>';
 
 }
+    var mapsBtn = "";
+    if (data.lat && data.lng) {
+        mapsBtn = '<a class="detail-maps-btn" href="https://www.google.com/maps?q=' + data.lat + ',' + data.lng + '" target="_blank" rel="noopener">📍 Buka Google Maps</a>';
+    }
 
 </script>
 <script src="js/ui.js"></script>
