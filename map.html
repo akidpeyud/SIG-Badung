@@ -1300,12 +1300,6 @@ function tampilDetail(data){
     if (data.keterangan) {
         rows += '<p><b>📝 Keterangan</b><span class="popup-badge">' + data.keterangan + '</span></p>';
     }
-
-    var mapsBtn = "";
-    if (data.lat && data.lng) {
-        mapsBtn = '<a class="detail-maps-btn" href="https://www.google.com/maps?q=' + data.lat + ',' + data.lng + '" target="_blank" rel="noopener">📍 Buka Google Maps</a>';
-    }
-
     document.getElementById("detailPanel").innerHTML =
         '<div class="detail-card">' +
         '<span class="detail-kategori">' + (data.icon || "") + " " + (data.kategori || "") + '</span>' +
