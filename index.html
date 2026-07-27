@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eksplorasi Wisata Kabupaten Badung | Bali</title>
+    <!-- Menggunakan Tailwind CSS untuk Styling Modern -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .hero-bg {
+            /* Ganti 'bg-bali.jpg' dengan nama file foto background kamu atau URL gambar */
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.7)), url('bg-bali.png') no-repeat center center fixed;
+            background-size: cover;
+        }
+    </style>
+</head>
+<body class="hero-bg min-h-screen flex flex-col justify-between text-white">
+
+    <!-- Header / Navbar Sederhana -->
+    <header class="w-full py-6 px-8 flex justify-between items-center max-w-7xl mx-auto">
+        <div class="flex items-center space-x-2">
+            <span class="text-2xl font-bold tracking-wider text-amber-400">BADUNG<span class="text-white">EXPLORE</span></span>
+        </div>
+        <div class="text-sm font-light text-gray-300">
+            GIS Web Project 2026
+        </div>
+    </header>
+
+    <!-- Konten Utama (Landing Page) -->
+    <main class="flex-grow flex items-center justify-center px-6">
+        <div class="max-w-3xl text-center space-y-6">
+            <span class="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs uppercase px-3 py-1.5 rounded-full font-semibold tracking-widest">
+                Interactive Web GIS
+            </span>
+            
+            <h1 class="text-4xl md:text-6xl font-extrabold leading-tight tracking-wide">
+                Pesona Keindahan & Destinasi <span class="text-amber-400">Kabupaten Badung, Bali</span>
+            </h1>
+            
+            <p class="text-base md:text-lg text-gray-200 font-light max-w-2xl mx-auto leading-relaxed">
+                Jelajahi peta interaktif pariwisata Kabupaten Badung yang memuat sebaran pantai eksotis, rekomendasi hotel berbintang pilihan di sekitar pesisir, hingga titik pura sakral dan kuliner ikonik terbaik.
+            </p>
+
+            <!-- Tombol Navigasi ke Peta Interaktif -->
+            <div class="pt-4">
+                <!-- Ubah 'index.html' di bawah ke 'map.html' jika file map QGIS2Web kamu diubah namanya -->
+                <a href="map.html" class="inline-flex items-center justify-center bg-amber-500 hover:bg-amber-600 text-gray-950 font-bold px-8 py-4 rounded-xl shadow-lg transform transition hover:-translate-y-1 hover:shadow-amber-500/50">
+                    Lihat Rekomendasi Wisata
+                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer / Informasi Pembuat Web -->
+    <footer class="w-full py-6 px-8 border-t border-white/10 bg-black/30 backdrop-blur-sm">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-sm text-gray-400 space-y-2 md:space-y-0">
+            <p>Dibuat untuk memenuhi tugas Akhir Mata Kuliah Sistem Informasi Geografis.</p>
+            <p class="font-medium text-gray-300">Dibuat Oleh: <span class="text-amber-400">Andika Dwi Putra - 23112021</span></p>
+        </div>
+    </footer>
+
+</body>
+</html>

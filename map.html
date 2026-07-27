@@ -1,0 +1,1326 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet.photon.css">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+    --bg-navy:#0f172a;
+    --bg-panel:#1e293b;
+    --bg-panel-light:#334155;
+    --accent:#f59e0b;
+    --accent-light:#fbbf24;
+    --text-main:#f1f5f9;
+    --text-muted:#94a3b8;
+    --border-soft:rgba(255,255,255,.08);
+}
+
+*{ box-sizing:border-box; }
+
+html,
+body{
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    font-family:'Poppins',sans-serif;
+    background:var(--bg-navy);
+}
+
+#app{
+    display:flex;
+    width:100%;
+    height:100vh;
+    position:relative;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+#sidebar{
+    width:340px;
+    flex-shrink:0;
+    background:var(--bg-navy);
+    color:white;
+    padding:25px;
+    overflow-y:auto;
+    border-right:1px solid var(--border-soft);
+    box-shadow:4px 0 20px rgba(0,0,0,.35);
+    transition:width .25s ease, padding .25s ease;
+}
+
+#sidebar.hide{
+    width:0;
+    padding:0;
+    overflow:hidden;
+    border:none;
+}
+
+#sidebar .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+#sidebar .brand-icon{ font-size:26px; }
+
+#sidebar h2{
+    margin:0;
+    color:var(--accent);
+    font-size:21px;
+    line-height:1.3;
+}
+
+#sidebar .brand-sub{
+    color:var(--text-muted);
+    font-size:12px;
+    margin:4px 0 0 36px;
+}
+
+#sidebar h3{
+    margin:24px 0 12px;
+    color:var(--accent-light);
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+}
+
+#sidebar hr{
+    border:none;
+    height:1px;
+    background:var(--border-soft);
+    margin:18px 0;
+}
+
+#sidebar input[type=text]{
+    width:100%;
+    padding:12px 14px;
+    border:none;
+    border-radius:10px;
+    outline:none;
+    background:var(--bg-panel);
+    color:white;
+    font-size:14px;
+}
+
+#sidebar input[type=text]::placeholder{
+    color:var(--text-muted);
+}
+
+/* Dropdown hasil pencarian */
+.search-result{
+    width:100%;
+    background:var(--bg-panel);
+    border-radius:10px;
+    margin-top:6px;
+    overflow-y:auto;
+    max-height:220px;
+    display:none;
+    box-shadow:0 8px 20px rgba(0,0,0,.4);
+}
+
+.search-item{
+    padding:11px 14px;
+    cursor:pointer;
+    color:white;
+    font-size:13px;
+    border-bottom:1px solid rgba(255,255,255,.05);
+    transition:.15s;
+}
+
+.search-item:last-child{ border-bottom:none; }
+
+.search-item:hover{
+    background:var(--bg-panel-light);
+    color:var(--accent-light);
+}
+
+/* Daftar kategori */
+.kategori-list label{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:9px 0;
+    cursor:pointer;
+    font-size:14px;
+    color:#e2e8f0;
+    transition:color .15s;
+}
+
+.kategori-list label:hover{ color:var(--accent-light); }
+
+#sidebar input[type=checkbox]{
+    width:16px;
+    height:16px;
+    accent-color:var(--accent);
+    cursor:pointer;
+    flex-shrink:0;
+}
+
+/* Statistik */
+.stat-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+}
+
+.stat-card{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--bg-panel);
+    border-radius:10px;
+    padding:10px 12px;
+    transition:.2s;
+}
+
+.stat-card:hover{
+    background:var(--bg-panel-light);
+    transform:translateY(-1px);
+}
+
+.stat-icon{ font-size:17px; }
+.stat-text{ font-size:12.5px; color:#e2e8f0; font-weight:500; }
+
+/* Panel Informasi Lokasi */
+#detailPanel{ font-size:13px; color:var(--text-main); }
+
+.detail-placeholder{
+    color:var(--text-muted);
+    line-height:1.6;
+    margin:0;
+}
+
+.detail-kategori{
+    display:inline-block;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color:var(--accent-light);
+    background:rgba(245,158,11,.12);
+    border:1px solid rgba(245,158,11,.3);
+    padding:3px 10px;
+    border-radius:20px;
+    margin-bottom:8px;
+}
+
+.detail-card h2{
+    margin:4px 0 12px;
+    color:#fff;
+    font-size:17px;
+    line-height:1.35;
+}
+
+.detail-card p{
+    margin:0 0 10px;
+    line-height:1.5;
+    color:#cbd5e1;
+}
+
+.detail-card p b{
+    color:var(--text-muted);
+    font-weight:600;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    display:block;
+    margin-bottom:2px;
+}
+
+.detail-card a{ color:#38bdf8; word-break:break-all; }
+
+.detail-maps-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    margin-top:4px;
+    background:var(--accent);
+    color:#111827 !important;
+    font-weight:600;
+    padding:10px 16px;
+    border-radius:8px;
+    text-decoration:none;
+    font-size:13px;
+}
+
+.detail-maps-btn:hover{ background:var(--accent-light); }
+
+.popup-badge{
+    display:inline-block;
+    background:rgba(245,158,11,.15);
+    color:var(--accent-light);
+    border:1px solid rgba(245,158,11,.3);
+    padding:2px 10px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:600;
+}
+
+/* =========================
+   MAP
+========================= */
+
+main{
+    flex:1;
+    position:relative;
+    min-width:0;
+}
+
+#map{
+    width:100%;
+    height:100%;
+}
+
+/* =========================
+   TEMA POPUP LEAFLET
+========================= */
+
+.leaflet-popup-content-wrapper{
+    background:var(--bg-navy);
+    color:var(--text-main);
+    border-radius:14px;
+    box-shadow:0 12px 30px rgba(0,0,0,.5);
+}
+
+.leaflet-popup-tip{ background:var(--bg-navy); }
+
+.leaflet-popup-content{
+    margin:14px 16px;
+    font-family:'Poppins',sans-serif;
+    min-width:180px;
+}
+
+.leaflet-popup-content .popup-title{
+    display:block;
+    font-size:15px;
+    font-weight:700;
+    color:var(--accent-light);
+    padding-bottom:8px;
+    margin-bottom:8px;
+    border-bottom:1px solid var(--border-soft);
+}
+
+.leaflet-popup-content table{ border-collapse:collapse; width:100%; }
+
+.leaflet-popup-content th{
+    text-align:left;
+    vertical-align:top;
+    color:var(--text-muted);
+    font-weight:500;
+    font-size:11px;
+    padding:4px 10px 4px 0;
+    white-space:nowrap;
+}
+
+.leaflet-popup-content td{
+    color:var(--text-main);
+    font-size:13px;
+    padding:4px 0;
+}
+
+.leaflet-popup-content a{ color:#38bdf8; }
+
+.leaflet-popup-close-button{ color:var(--text-muted) !important; }
+.leaflet-popup-close-button:hover{ color:#fff !important; }
+
+/* =========================
+   SCROLLBAR
+========================= */
+
+#sidebar::-webkit-scrollbar{ width:8px; }
+
+#sidebar::-webkit-scrollbar-thumb{
+    background:#334155;
+    border-radius:10px;
+}
+
+.search-result::-webkit-scrollbar{ width:6px; }
+.search-result::-webkit-scrollbar-thumb{ background:var(--bg-panel-light); border-radius:10px; }
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width:820px){
+    #sidebar{
+        position:absolute;
+        left:0;
+        top:0;
+        height:100%;
+        z-index:1000;
+        width:300px;
+        padding:22px;
+        transform:translateX(0);
+        transition:transform .25s ease;
+    }
+    #sidebar.hide{
+        width:300px;
+        padding:22px;
+        transform:translateX(-105%);
+        border:none;
+    }
+    main{ width:100%; }
+}
+</style>
+        <title></title>
+    </head>
+<body>
+
+<div id="app">
+
+    <!-- Sidebar -->
+    <aside id="sidebar">
+
+        <div class="brand">
+            <span class="brand-icon">🌴</span>
+            <h2>SIG WISATA BADUNG</h2>
+        </div>
+        <p class="brand-sub">Peta interaktif Kabupaten Badung, Bali</p>
+
+        <hr>
+
+        <input
+            id="searchInput"
+            type="text"
+            placeholder="🔍 Cari nama lokasi..."
+        >
+        <div id="searchResult" class="search-result"></div>
+
+        <h3>Kategori</h3>
+        <div class="kategori-list">
+            <label>
+                <input type="checkbox" checked id="cbPantai">
+                🏖 Pantai
+            </label>
+            <label>
+                <input type="checkbox" checked id="cbHotel">
+                🏨 Hotel Rekomendasi
+            </label>
+            <label>
+                <input type="checkbox" checked id="cbResto">
+                🍽 Restoran Rekomendasi
+            </label>
+            <label>
+                <input type="checkbox" checked id="cbPura">
+                ⛩ Pura
+            </label>
+        </div>
+
+        <h3>Statistik</h3>
+        <div class="stat-grid">
+            <div class="stat-card">
+                <span class="stat-icon">🏖</span>
+                <div id="jumlahPantai" class="stat-text">Pantai : 0</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">🏨</span>
+                <div id="jumlahHotel" class="stat-text">Hotel : 0</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">🍽</span>
+                <div id="jumlahResto" class="stat-text">Resto : 0</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">⛩</span>
+                <div id="jumlahPura" class="stat-text">Pura : 0</div>
+            </div>
+        </div>
+
+        <hr>
+
+        <h3>Informasi Lokasi</h3>
+
+        <div id="detailPanel">
+            <p class="detail-placeholder">
+                Klik salah satu marker pada peta untuk melihat informasi lengkap.
+            </p>
+            <p class="detail-placeholder">
+                Buffer oranye berfungsi untuk melihat hotel/penginapan terdekat dengan jarak 1,5km dari titik
+            </p>
+        </div>
+            <br>
+            <br>
+            <br>
+            <div>
+                <p>
+                    Dibuat Oleh : Andika Dwi Putra
+                </p>
+            </div>
+    </aside>
+
+    <!-- Map -->
+    <main>
+        <div id="map"></div>
+    </main>
+
+</div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/multi-style-layer.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet.photon.js"></script>
+        <script src="data/KecamatanBadung_1.js"></script>
+        <script src="data/buffer_hotel_2.js"></script>
+        <script src="data/pantai_3.js"></script>
+        <script src="data/21HotelRekomendasi_4.js"></script>
+        <script src="data/5RekomendasiPura_5.js"></script>
+        <script src="data/5RekomendasiResto_6.js"></script>
+        <script>
+        var highlightLayer;
+        function trimVal(v) {
+            return (v === null || v === undefined) ? '' : String(v).trim();
+        }
+        function wheelchairLabel(v) {
+            var val = trimVal(v).toLowerCase();
+            if (val === 'ya' || val === 'yes') return '✅ Ya';
+            if (val === 'tidak' || val === 'no') return '❌ Tidak';
+            return '❔ Tidak ada info';
+        }
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+
+            if (e.target.feature.geometry.type === 'LineString' || e.target.feature.geometry.type === 'MultiLineString') {
+              highlightLayer.setStyle({
+                color: 'rgba(255, 255, 0, 1.00)',
+              });
+            } else {
+              highlightLayer.setStyle({
+                fillColor: 'rgba(255, 255, 0, 1.00)',
+                fillOpacity: 1
+              });
+            }
+            highlightLayer.openPopup();
+        }
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[-8.90450339898422,114.70557955582979],[-8.355604083579799,115.55894633280329]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/qgis2web/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // modify popup if contains media
+        function addClassToPopupIfMedia(content, popup) {
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = content;
+            var imgTd = tempDiv.querySelector('td img');
+            if (imgTd) {
+                var src = imgTd.getAttribute('src');
+                if (/\.(jpg|jpeg|png|gif|bmp|webp|avif)$/i.test(src)) {
+                    popup._contentNode.classList.add('media');
+                    setTimeout(function() {
+                        popup.update();
+                    }, 10);
+                } else if (/\.(mp3|wav|ogg|aac)$/i.test(src)) {
+                    var audio = document.createElement('audio');
+                    audio.controls = true;
+                    audio.src = src;
+                    imgTd.parentNode.replaceChild(audio, imgTd);
+                    popup._contentNode.classList.add('media');
+                    setTimeout(function() {
+                        popup.setContent(tempDiv.innerHTML);
+                        popup.update();
+                    }, 10);
+                } else if (/\.(mp4|webm|ogg|mov)$/i.test(src)) {
+                    var video = document.createElement('video');
+                    video.controls = true;
+                    video.src = src;
+                    video.style.width = "400px";
+                    video.style.height = "300px";
+                    video.style.maxHeight = "60vh";
+                    video.style.maxWidth = "60vw";
+                    imgTd.parentNode.replaceChild(video, imgTd);
+                    popup._contentNode.classList.add('media');
+                    // Aggiorna il popup quando il video carica i metadati
+                    video.addEventListener('loadedmetadata', function() {
+                        popup.update();
+                    });
+                    setTimeout(function() {
+                        popup.setContent(tempDiv.innerHTML);
+                        popup.update();
+                    }, 10);
+                } else {
+                    popup._contentNode.classList.remove('media');
+                }
+            } else {
+                popup._contentNode.classList.remove('media');
+            }
+        }
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_OSMStandard_0');
+        map.getPane('pane_OSMStandard_0').style.zIndex = 400;
+        var layer_OSMStandard_0 = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            pane: 'pane_OSMStandard_0',
+            opacity: 1.0,
+            attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors, CC-BY-SA</a>',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_OSMStandard_0;
+        map.addLayer(layer_OSMStandard_0);
+        function pop_KecamatanBadung_1(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var namaKec = trimVal(feature.properties['NAME_3']);
+            var popupContent = '<div class="popup-card">\
+                    <span class="popup-title">🗺️ Kecamatan ' + namaKec + '</span>\
+                </div>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_KecamatanBadung_1_0(feature) {
+            switch(String(feature.properties['NAME_3'])) {
+                case 'Abiansemal':
+                    return {
+                pane: 'pane_KecamatanBadung_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.755)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(215,105,209,0.755)',
+                interactive: true,
+            }
+                    break;
+                case 'Kuta':
+                    return {
+                pane: 'pane_KecamatanBadung_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.755)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(25,156,222,0.755)',
+                interactive: true,
+            }
+                    break;
+                case 'Kuta Selatan':
+                    return {
+                pane: 'pane_KecamatanBadung_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.755)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(206,82,93,0.755)',
+                interactive: true,
+            }
+                    break;
+                case 'Kuta Utara':
+                    return {
+                pane: 'pane_KecamatanBadung_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.755)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(149,200,118,0.755)',
+                interactive: true,
+            }
+                    break;
+                case 'Mengwi':
+                    return {
+                pane: 'pane_KecamatanBadung_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.755)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(203,172,69,0.755)',
+                interactive: true,
+            }
+                    break;
+                case 'Petang':
+                    return {
+                pane: 'pane_KecamatanBadung_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.755)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(129,219,171,0.755)',
+                interactive: true,
+            }
+                    break;
+                default:
+                    return {
+                pane: 'pane_KecamatanBadung_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.755)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(97,66,223,0.755)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        function style_KecamatanBadung_1_1(feature) {
+            switch(String(feature.properties['NAME_3'])) {
+                case 'Abiansemal':
+                    return {
+                pane: 'pane_KecamatanBadung_1',
+                opacity: 1,
+                color: 'rgba(0,0,0,0.755)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+                case 'Kuta':
+                    return {
+                pane: 'pane_KecamatanBadung_1',
+                opacity: 1,
+                color: 'rgba(0,0,0,0.755)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+                case 'Kuta Selatan':
+                    return {
+                pane: 'pane_KecamatanBadung_1',
+                opacity: 1,
+                color: 'rgba(0,0,0,0.755)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+                case 'Kuta Utara':
+                    return {
+                pane: 'pane_KecamatanBadung_1',
+                opacity: 1,
+                color: 'rgba(0,0,0,0.755)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+                case 'Mengwi':
+                    return {
+                pane: 'pane_KecamatanBadung_1',
+                opacity: 1,
+                color: 'rgba(0,0,0,0.755)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+                case 'Petang':
+                    return {
+                pane: 'pane_KecamatanBadung_1',
+                opacity: 1,
+                color: 'rgba(0,0,0,0.755)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+                default:
+                    return {
+                pane: 'pane_KecamatanBadung_1',
+                opacity: 1,
+                color: 'rgba(0,0,0,0.755)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_KecamatanBadung_1');
+        map.getPane('pane_KecamatanBadung_1').style.zIndex = 401;
+        map.getPane('pane_KecamatanBadung_1').style['mix-blend-mode'] = 'normal';
+        var layer_KecamatanBadung_1 = new L.geoJson.multiStyle(json_KecamatanBadung_1, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_KecamatanBadung_1',
+            layerName: 'layer_KecamatanBadung_1',
+            pane: 'pane_KecamatanBadung_1',
+            onEachFeature: pop_KecamatanBadung_1,
+            styles: [style_KecamatanBadung_1_0,style_KecamatanBadung_1_1,]
+        });
+        bounds_group.addLayer(layer_KecamatanBadung_1);
+        map.addLayer(layer_KecamatanBadung_1);
+        function pop_buffer_hotel_2(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var namaPantaiBuffer = trimVal(feature.properties['name']) || 'Pantai';
+            var popupContent = '<div class="popup-card">\
+                    <span class="popup-title">🔵 Zona Radius Pantai</span>\
+                    <table>\
+                        <tr><th>Pantai</th><td>' + namaPantaiBuffer + '</td></tr>\
+                        <tr><th>Keterangan</th><td>Radius pencarian hotel di sekitar pantai ini</td></tr>\
+                    </table>\
+                </div>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_buffer_hotel_2_0() {
+            return {
+                pane: 'pane_buffer_hotel_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,158,23,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_buffer_hotel_2');
+        map.getPane('pane_buffer_hotel_2').style.zIndex = 402;
+        map.getPane('pane_buffer_hotel_2').style['mix-blend-mode'] = 'normal';
+        var layer_buffer_hotel_2 = new L.geoJson(json_buffer_hotel_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_buffer_hotel_2',
+            layerName: 'layer_buffer_hotel_2',
+            pane: 'pane_buffer_hotel_2',
+            onEachFeature: pop_buffer_hotel_2,
+            style: style_buffer_hotel_2_0,
+        });
+        bounds_group.addLayer(layer_buffer_hotel_2);
+        map.addLayer(layer_buffer_hotel_2);
+        function pop_pantai_3(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+                click: function(e) {
+                    var latlng = e.target.getLatLng();
+                    tampilDetail({
+                        kategori: 'Pantai',
+                        icon: '🏖',
+                        nama: trimVal(feature.properties['name']),
+                        lat: latlng.lat,
+                        lng: latlng.lng
+                    });
+                },
+            });
+            var namaPantai = trimVal(feature.properties['name']);
+            var popupContent = '<div class="popup-card">\
+                    <span class="popup-title">🏖 ' + namaPantai + '</span>\
+                </div>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_pantai_3_0() {
+            return {
+                pane: 'pane_pantai_3',
+        rotationAngle: 0.0,
+        rotationOrigin: 'center center',
+        icon: L.icon({
+            iconUrl: 'markers/pantai_3.svg',
+            iconSize: [38.0, 38.0]
+        }),
+                interactive: true,
+            }
+        }
+        map.createPane('pane_pantai_3');
+        map.getPane('pane_pantai_3').style.zIndex = 403;
+        map.getPane('pane_pantai_3').style['mix-blend-mode'] = 'normal';
+        var layer_pantai_3 = new L.geoJson(json_pantai_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_pantai_3',
+            layerName: 'layer_pantai_3',
+            pane: 'pane_pantai_3',
+            onEachFeature: pop_pantai_3,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.marker(latlng, style_pantai_3_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_pantai_3);
+        map.addLayer(layer_pantai_3);
+        function pop_21HotelRekomendasi_4(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+                click: function(e) {
+                    var latlng = e.target.getLatLng();
+                    tampilDetail({
+                        kategori: 'Hotel Rekomendasi',
+                        icon: '🏨',
+                        nama: trimVal(feature.properties['nama']),
+                        rating: trimVal(feature.properties['rating']),
+                        alamat: trimVal(feature.properties['alamat']),
+                        pantai: trimVal(feature.properties['pantai']),
+                        telp: trimVal(feature.properties['no_telp']),
+                        website: trimVal(feature.properties['website']),
+                        keterangan: trimVal(feature.properties['keterangan']),
+                        lat: latlng.lat,
+                        lng: latlng.lng
+                    });
+                },
+            });
+            var namaHotel = trimVal(feature.properties['nama']);
+            var ratingHotel = trimVal(feature.properties['rating']);
+            var alamatHotel = trimVal(feature.properties['alamat']);
+            var pantaiHotel = trimVal(feature.properties['pantai']);
+            var telpHotel = trimVal(feature.properties['no_telp']);
+            var webHotel = trimVal(feature.properties['website']);
+            var ketHotel = trimVal(feature.properties['keterangan']);
+            var popupContent = '<div class="popup-card">\
+                    <span class="popup-title">🏨 ' + namaHotel + '</span>\
+                    <table>\
+                        <tr><th>⭐ Rating</th><td>' + ratingHotel + '</td></tr>\
+                        <tr><th>📍 Alamat</th><td>' + alamatHotel + '</td></tr>\
+                        <tr><th>🏖 Pantai Terdekat</th><td>' + pantaiHotel + '</td></tr>\
+                        <tr><th>☎ Telepon</th><td>' + telpHotel + '</td></tr>\
+                        <tr><th>🌐 Website</th><td>' + (webHotel ? autolinker.link(webHotel) : '') + '</td></tr>\
+                    </table>\
+                    ' + (ketHotel ? '<span class="popup-badge">' + ketHotel + '</span>' : '') + '\
+                </div>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_21HotelRekomendasi_4_0() {
+            return {
+                pane: 'pane_21HotelRekomendasi_4',
+        rotationAngle: 0.0,
+        rotationOrigin: 'center center',
+        icon: L.icon({
+            iconUrl: 'markers/21HotelRekomendasi_4.svg',
+            iconSize: [26.599999999999998, 26.599999999999998]
+        }),
+                interactive: true,
+            }
+        }
+        map.createPane('pane_21HotelRekomendasi_4');
+        map.getPane('pane_21HotelRekomendasi_4').style.zIndex = 404;
+        map.getPane('pane_21HotelRekomendasi_4').style['mix-blend-mode'] = 'normal';
+        var layer_21HotelRekomendasi_4 = new L.geoJson(json_21HotelRekomendasi_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_21HotelRekomendasi_4',
+            layerName: 'layer_21HotelRekomendasi_4',
+            pane: 'pane_21HotelRekomendasi_4',
+            onEachFeature: pop_21HotelRekomendasi_4,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.marker(latlng, style_21HotelRekomendasi_4_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_21HotelRekomendasi_4);
+        map.addLayer(layer_21HotelRekomendasi_4);
+        function pop_5RekomendasiPura_5(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+                click: function(e) {
+                    var latlng = e.target.getLatLng();
+                    tampilDetail({
+                        kategori: 'Pura',
+                        icon: '⛩',
+                        nama: trimVal(feature.properties['nama pura']),
+                        rating: trimVal(feature.properties['rating']),
+                        alamat: trimVal(feature.properties['alamat']),
+                        wheelchair: trimVal(feature.properties['wheelchair_access']),
+                        lat: latlng.lat,
+                        lng: latlng.lng
+                    });
+                },
+            });
+            var namaPura = trimVal(feature.properties['nama pura']);
+            var ratingPura = trimVal(feature.properties['rating']);
+            var alamatPura = trimVal(feature.properties['alamat']);
+            var aksesPura = wheelchairLabel(feature.properties['wheelchair_access']);
+            var popupContent = '<div class="popup-card">\
+                    <span class="popup-title">⛩ ' + namaPura + '</span>\
+                    <table>\
+                        <tr><th>⭐ Rating</th><td>' + ratingPura + '</td></tr>\
+                        <tr><th>📍 Alamat</th><td>' + alamatPura + '</td></tr>\
+                        <tr><th>♿ Akses Kursi Roda</th><td>' + aksesPura + '</td></tr>\
+                    </table>\
+                </div>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_5RekomendasiPura_5_0() {
+            return {
+                pane: 'pane_5RekomendasiPura_5',
+        rotationAngle: 0.0,
+        rotationOrigin: 'center center',
+        icon: L.icon({
+            iconUrl: 'markers/5RekomendasiPura_5.svg',
+            iconSize: [26.599999999999998, 26.599999999999998]
+        }),
+                interactive: true,
+            }
+        }
+        map.createPane('pane_5RekomendasiPura_5');
+        map.getPane('pane_5RekomendasiPura_5').style.zIndex = 405;
+        map.getPane('pane_5RekomendasiPura_5').style['mix-blend-mode'] = 'normal';
+        var layer_5RekomendasiPura_5 = new L.geoJson(json_5RekomendasiPura_5, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_5RekomendasiPura_5',
+            layerName: 'layer_5RekomendasiPura_5',
+            pane: 'pane_5RekomendasiPura_5',
+            onEachFeature: pop_5RekomendasiPura_5,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.marker(latlng, style_5RekomendasiPura_5_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_5RekomendasiPura_5);
+        map.addLayer(layer_5RekomendasiPura_5);
+        function pop_5RekomendasiResto_6(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (var i in e.target._eventParents) {
+                        if (typeof e.target._eventParents[i].resetStyle === 'function') {
+                            e.target._eventParents[i].resetStyle(e.target);
+                        }
+                    }
+                    if (typeof layer.closePopup == 'function') {
+                        layer.closePopup();
+                    } else {
+                        layer.eachLayer(function(feature){
+                            feature.closePopup()
+                        });
+                    }
+                },
+                mouseover: highlightFeature,
+                click: function(e) {
+                    var latlng = e.target.getLatLng();
+                    tampilDetail({
+                        kategori: 'Restoran',
+                        icon: '🍽',
+                        nama: trimVal(feature.properties['nama resto']),
+                        rating: trimVal(feature.properties['rating']),
+                        alamat: trimVal(feature.properties['alamat']),
+                        wheelchair: trimVal(feature.properties['wheelchair_access']),
+                        lat: latlng.lat,
+                        lng: latlng.lng
+                    });
+                },
+            });
+            var namaResto = trimVal(feature.properties['nama resto']);
+            var ratingResto = trimVal(feature.properties['rating']);
+            var alamatResto = trimVal(feature.properties['alamat']);
+            var aksesResto = wheelchairLabel(feature.properties['wheelchair_access']);
+            var popupContent = '<div class="popup-card">\
+                    <span class="popup-title">🍽 ' + namaResto + '</span>\
+                    <table>\
+                        <tr><th>⭐ Rating</th><td>' + ratingResto + '</td></tr>\
+                        <tr><th>📍 Alamat</th><td>' + alamatResto + '</td></tr>\
+                        <tr><th>♿ Akses Kursi Roda</th><td>' + aksesResto + '</td></tr>\
+                    </table>\
+                </div>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_5RekomendasiResto_6_0() {
+            return {
+                pane: 'pane_5RekomendasiResto_6',
+        rotationAngle: 0.0,
+        rotationOrigin: 'center center',
+        icon: L.icon({
+            iconUrl: 'markers/5RekomendasiResto_6.svg',
+            iconSize: [26.599999999999998, 26.599999999999998]
+        }),
+                interactive: true,
+            }
+        }
+        map.createPane('pane_5RekomendasiResto_6');
+        map.getPane('pane_5RekomendasiResto_6').style.zIndex = 406;
+        map.getPane('pane_5RekomendasiResto_6').style['mix-blend-mode'] = 'normal';
+        var layer_5RekomendasiResto_6 = new L.geoJson(json_5RekomendasiResto_6, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_5RekomendasiResto_6',
+            layerName: 'layer_5RekomendasiResto_6',
+            pane: 'pane_5RekomendasiResto_6',
+            onEachFeature: pop_5RekomendasiResto_6,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.marker(latlng, style_5RekomendasiResto_6_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_5RekomendasiResto_6);
+        map.addLayer(layer_5RekomendasiResto_6);
+        var overlaysTree = [
+            {label: '<img src="legend/5RekomendasiResto_6.png" /> 4 Rekomendasi Resto', layer: layer_5RekomendasiResto_6},
+            {label: '<img src="legend/5RekomendasiPura_5.png" /> 4 Rekomendasi Pura', layer: layer_5RekomendasiPura_5},
+            {label: '<img src="legend/21HotelRekomendasi_4.png" /> 21 Hotel Rekomendasi', layer: layer_21HotelRekomendasi_4},
+            {label: '<img src="legend/pantai_3.png" /> pantai', layer: layer_pantai_3},
+            {label: '<img src="legend/buffer_hotel_2.png" /> buffer_hotel', layer: layer_buffer_hotel_2},
+            {label: 'Kecamatan Badung<br /><table><tr><td style="text-align: center;"><img src="legend/KecamatanBadung_1_Abiansemal0.png" /></td><td>Abiansemal</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanBadung_1_Kuta1.png" /></td><td>Kuta</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanBadung_1_KutaSelatan2.png" /></td><td>Kuta Selatan</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanBadung_1_KutaUtara3.png" /></td><td>Kuta Utara</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanBadung_1_Mengwi4.png" /></td><td>Mengwi</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanBadung_1_Petang5.png" /></td><td>Petang</td></tr><tr><td style="text-align: center;"><img src="legend/KecamatanBadung_1_6.png" /></td><td></td></tr></table>', layer: layer_KecamatanBadung_1},
+            {label: "OSM Standard", layer: layer_OSMStandard_0, radioGroup: 'bm' },]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: true,
+        });
+        lay.addTo(map);
+        setBounds();
+        var i = 0;
+        layer_KecamatanBadung_1.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['NAME_3'] !== null?String('<div style="color: #323232; font-size: 10pt; font-family: \'Open Sans\', sans-serif;">' + layer.feature.properties['NAME_3']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_KecamatanBadung_1'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        resetLabels([layer_KecamatanBadung_1,layer_5RekomendasiPura_5]);
+        map.on("zoomend", function(){
+            resetLabels([layer_KecamatanBadung_1,layer_5RekomendasiPura_5]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_KecamatanBadung_1,layer_5RekomendasiPura_5]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_KecamatanBadung_1,layer_5RekomendasiPura_5]);
+        });</script>
+<script>
+
+function tampilDetail(data){
+
+    var rows = "";
+
+    if (data.rating) {
+        rows += '<p><b>⭐ Rating</b>' + data.rating + '</p>';
+    }
+    if (data.alamat) {
+        rows += '<p><b>📍 Alamat</b>' + data.alamat + '</p>';
+    }
+    if (data.pantai) {
+        rows += '<p><b>🏖 Pantai Terdekat</b>' + data.pantai + '</p>';
+    }
+    if (data.telp) {
+        rows += '<p><b>☎ Telepon</b>' + data.telp + '</p>';
+    }
+    if (data.website) {
+        var webHref = /^https?:\/\//i.test(data.website) ? data.website : ('https://' + data.website);
+        rows += '<p><b>🌐 Website</b><a href="' + webHref + '" target="_blank" rel="noopener">' + data.website + '</a></p>';
+    }
+    if (data.wheelchair) {
+        rows += '<p><b>♿ Akses Kursi Roda</b>' + wheelchairLabel(data.wheelchair) + '</p>';
+    }
+    if (data.keterangan) {
+        rows += '<p><b>📝 Keterangan</b><span class="popup-badge">' + data.keterangan + '</span></p>';
+    }
+
+    var mapsBtn = "";
+    if (data.lat && data.lng) {
+        mapsBtn = '<a class="detail-maps-btn" href="https://www.google.com/maps?q=' + data.lat + ',' + data.lng + '" target="_blank" rel="noopener">📍 Buka Google Maps</a>';
+    }
+
+    document.getElementById("detailPanel").innerHTML =
+        '<div class="detail-card">' +
+        '<span class="detail-kategori">' + (data.icon || "") + " " + (data.kategori || "") + '</span>' +
+        '<h2>' + (data.nama || "-") + '</h2>' +
+        rows +
+        mapsBtn +
+        '</div>';
+
+}
+
+</script>
+<script src="js/ui.js"></script>
+<script src="js/search.js"></script>
+<script src="js/statistic.js"></script>
+<script src="js/filter.js"></script>
+
+</body>
+</html>
