@@ -349,6 +349,14 @@
 
         </div>
 
+        <!-- Footer -->
+        <footer class="w-100 py-4 px-4 px-md-5 border-top border-white/10 mt-auto" style="background-color: #0f172a; color: #f8fafc; height: 72px;">
+            <div class="max-w-7xl mx-auto d-flex flex-column flex-md-row justify-content-between align-items-center text-sm gap-2 text-center md:text-start">
+                <p class="mb-0 fw-medium text-light">Dibuat untuk memenuhi Tugas Akhir Mata Kuliah Sistem Informasi Geografis.</p>
+                <p class="mb-0 fw-bold text-white">Dibuat Oleh: <span style="color: #fbbf24;">Andika Dwi Putra - 23112021</span></p>
+            </div>
+        </footer>
+
         <!-- Bootstrap JS Bundle -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -735,9 +743,8 @@
                     opacity: 0.9
                 }).addTo(map);
 
-                // PENYESUAIAN ZOOM: Menggunakan setView langsung ke titik hotel dengan zoom level 15 
-                // agar tampilannya pas (tidak terlalu jauh dan fokus ke area hotel)
-                map.setView(hotelLatLng, 15);
+                // Menggunakan setView dengan zoom level 16 agar pas (tidak terlalu jauh/dekat)
+                map.setView(hotelLatLng, 16);
 
                 // Ambil data properti hotel asli
                 let props = hotelMarker.feature.properties;
@@ -803,7 +810,7 @@
                         item.onclick = function(evt) {
                             evt.preventDefault();
                             let latLng = marker.getLatLng();
-                            map.setView(latLng, 17);
+                            map.setView(latLng, 16);
                             showTempMarker(latLng);
                             marker.fire('click');
                         };
@@ -932,7 +939,7 @@
                 div.innerHTML = `<i class="fas fa-umbrella-beach text-info me-1"></i> ${nama}`;
                 div.onclick = function() { 
                     let latLng = layer.getLatLng();
-                    map.setView(latLng, 15); 
+                    map.setView(latLng, 16); 
                     showTempMarker(latLng);
                     layer.fire('click'); 
                 };
@@ -991,7 +998,7 @@
                 div.innerHTML = `<i class="fas fa-place-of-worship text-danger me-1"></i> ${nama}`;
                 div.onclick = function() { 
                     let latLng = layer.getLatLng();
-                    map.setView(latLng, 15); 
+                    map.setView(latLng, 16); 
                     showTempMarker(latLng);
                     layer.fire('click'); 
                 };
@@ -1009,7 +1016,7 @@
                 div.innerHTML = `<i class="fas fa-utensils text-warning me-1"></i> ${nama}`;
                 div.onclick = function() { 
                     let latLng = layer.getLatLng();
-                    map.setView(latLng, 15); 
+                    map.setView(latLng, 16); 
                     showTempMarker(latLng);
                     layer.fire('click'); 
                 };
