@@ -743,8 +743,9 @@
                     opacity: 0.9
                 }).addTo(map);
 
-                // Menggunakan setView dengan zoom level 16 agar pas (tidak terlalu jauh/dekat)
-                map.setView(hotelLatLng, 16);
+                // PENYESUAIAN ZOOM: Menggunakan setView langsung ke titik hotel dengan zoom level 15 
+                // agar tampilannya pas (tidak terlalu jauh dan fokus ke area hotel)
+                map.setView(hotelLatLng, 15);
 
                 // Ambil data properti hotel asli
                 let props = hotelMarker.feature.properties;
@@ -810,7 +811,7 @@
                         item.onclick = function(evt) {
                             evt.preventDefault();
                             let latLng = marker.getLatLng();
-                            map.setView(latLng, 16);
+                            map.setView(latLng, 17);
                             showTempMarker(latLng);
                             marker.fire('click');
                         };
@@ -939,7 +940,7 @@
                 div.innerHTML = `<i class="fas fa-umbrella-beach text-info me-1"></i> ${nama}`;
                 div.onclick = function() { 
                     let latLng = layer.getLatLng();
-                    map.setView(latLng, 16); 
+                    map.setView(latLng, 15); 
                     showTempMarker(latLng);
                     layer.fire('click'); 
                 };
@@ -998,7 +999,7 @@
                 div.innerHTML = `<i class="fas fa-place-of-worship text-danger me-1"></i> ${nama}`;
                 div.onclick = function() { 
                     let latLng = layer.getLatLng();
-                    map.setView(latLng, 16); 
+                    map.setView(latLng, 15); 
                     showTempMarker(latLng);
                     layer.fire('click'); 
                 };
@@ -1016,7 +1017,7 @@
                 div.innerHTML = `<i class="fas fa-utensils text-warning me-1"></i> ${nama}`;
                 div.onclick = function() { 
                     let latLng = layer.getLatLng();
-                    map.setView(latLng, 16); 
+                    map.setView(latLng, 15); 
                     showTempMarker(latLng);
                     layer.fire('click'); 
                 };
